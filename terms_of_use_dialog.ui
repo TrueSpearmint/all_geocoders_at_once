@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AllGeocodersAtOnceDialogBase</class>
+ <widget class="QDialog" name="AllGeocodersAtOnceDialogBase">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>660</width>
+    <height>625</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>All Geocoders At Once</string>
+  </property>
+  <property name="windowOpacity">
+   <double>1.000000000000000</double>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>20</y>
+     <width>620</width>
+     <height>585</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;This plugin contains 20 of the most popular geocoding services and is designed to help you choose the best one by comparing time results.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;It is important to note that the ability to fully utilize geocoding results depends on the rules set by different services. Some of them, especially those that require the use of API keys, may restrict the storage and processing of the obtained information, as well as set conditions for free plans.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Users are strongly recommended to familiarize themselves with the rules of use of each service before using geocoding results in their projects. Below are links to the official pages of the services, where you can learn more about their policies and rules. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;–– Geocoders without API key ––&lt;br/&gt;&lt;/span&gt;Nominatim — &lt;a href=&quot;https://nominatim.org&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://nominatim.org&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;Photon — &lt;a href=&quot;https://photon.komoot.io&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://photon.komoot.io&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;Esri (ArcGis) — &lt;a href=&quot;https://developers.arcgis.com/rest/geocode&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://developers.arcgis.com/rest/geocode&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;–– Geocoders with API key ––&lt;br/&gt;&lt;/span&gt;Mapbox — &lt;a href=&quot;https://docs.mapbox.com/api/search/geocoding&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://docs.mapbox.com/api/search/geocoding&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;TomTom — &lt;a href=&quot;https://developer.tomtom.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://developer.tomtom.com&lt;/span&gt;&lt;/a&gt;&lt;a href=&quot;https://docs.mapbox.com/api/search/geocoding&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;Yandex — &lt;a href=&quot;https://yandex.ru/maps-api/products/geocoder-api&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://yandex.ru/maps-api/products/geocoder-api&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;GraphHopper — &lt;a href=&quot;https://www.graphhopper.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://www.graphhopper.com&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;Geoapify — &lt;a href=&quot;https://www.geoapify.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://www.geoapify.com&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;LocationIQ — &lt;a href=&quot;https://locationiq.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://locationiq.com&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;NetToolKit — &lt;a href=&quot;https://www.nettoolkit.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://www.nettoolkit.com&lt;/span&gt;&lt;/a&gt;&lt;a href=&quot;https://locationiq.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;Geocodio — &lt;a href=&quot;https://www.geocod.io&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://www.geocod.io&lt;/span&gt;&lt;/a&gt;&lt;a href=&quot;https://locationiq.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;OpenCage — &lt;a href=&quot;https://opencagedata.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://opencagedata.com&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;–– Geocoders with API key with card binding ––&lt;br/&gt;&lt;/span&gt;Google — &lt;a href=&quot;https://developers.google.com/maps/documentation/geocoding&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://developers.google.com/maps/documentation/geocoding&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;Here — &lt;a href=&quot;https://www.here.com/platform/geocoding&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://www.here.com/platform/geocoding&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;Azure (ex. Bing Maps) — &lt;a href=&quot;https://learn.microsoft.com/en-us/rest/api/maps/search&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://learn.microsoft.com/en-us/rest/api/maps/search&lt;/span&gt;&lt;/a&gt;&lt;a href=&quot;https://developers.google.com/maps/documentation/geocoding&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;MapQuest — &lt;a href=&quot;https://developer.mapquest.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://developer.mapquest.com&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;Positionstack — &lt;a href=&quot;https://positionstack.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://positionstack.com&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;–– Geocoders with API key and fully paid ––&lt;br/&gt;&lt;/span&gt;Pelias (hosted by Geocode Earth) — &lt;a href=&quot;https://github.com/pelias/pelias&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://github.com/pelias/pelias&lt;/span&gt;&lt;/a&gt; &amp;amp; host: &lt;a href=&quot;https://geocode.earth&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://geocode.earth&lt;/span&gt;&lt;/a&gt;&lt;a href=&quot;https://dadata.ru/api/geocode&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;Gisgraphy (hosted by Gisgraphy) — &lt;a href=&quot;https://www.gisgraphy.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://www.gisgraphy.com&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;&lt;br/&gt;&lt;/span&gt;DaData — &lt;a href=&quot;https://dadata.ru/api/geocode&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://dadata.ru/api/geocode&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="scaledContents">
+    <bool>false</bool>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

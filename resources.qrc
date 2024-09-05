@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/all_geocoders_at_once" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>

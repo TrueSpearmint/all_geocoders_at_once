@@ -130,7 +130,7 @@
   <widget class="QPushButton" name="pushButton_geocode">
    <property name="geometry">
     <rect>
-     <x>292</x>
+     <x>260</x>
      <y>190</y>
      <width>75</width>
      <height>23</height>
@@ -203,6 +203,19 @@
    </property>
    <property name="text">
     <string>Geocoders Terms of Use</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_stop">
+   <property name="geometry">
+    <rect>
+     <x>350</x>
+     <y>190</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Stop</string>
    </property>
   </widget>
  </widget>

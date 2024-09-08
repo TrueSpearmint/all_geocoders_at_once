@@ -10,12 +10,60 @@ import os.path # импорт модуля для работы с путями �
 from .terms_of_use_dialog import TermsOfUseDialog # импорт диалогового окна со справкой.
 
 # Библиотеки для работы основных скриптов (в def run)
+from PyQt5.QtCore import QThread, pyqtSignal # библиотеки для многопоточности, чтобы процесс можно было остановить.
 from qgis.core import QgsNetworkAccessManager, QgsProject, QgsVectorLayer
 from qgis.PyQt.QtNetwork import QNetworkRequest
 from qgis.PyQt.QtCore import QUrl
 import subprocess
 # Импорт модулей геокодеров
 from .geocoders import geocode_nominatim,geocode_photon,geocode_esri,geocode_mapbox,geocode_tomtom,geocode_yandex,geocode_graphhopper,geocode_geoapify,geocode_locationiq,geocode_nettoolkit,geocode_geocodio,geocode_opencage,geocode_google,geocode_here,geocode_azure,geocode_mapquest,geocode_positionstack,geocode_pelias,geocode_gisgraphy,geocode_dadata
+
+# Класс в рамках которого происходит процесс геокодирования. Вынесен отдельно для возможности остановки процесса
+class GeocodeThread(QThread):
+    progress_updated = pyqtSignal(int)  # сигнал для обновления прогресс-бара.
+    geocoding_finished = pyqtSignal(list, int, int, list)  # сигнал для завершения геокодирования.
+    message_signal = pyqtSignal(str)  # сигнал для передачи текстовых сообщений. Использование сигнала необходимо, для передачи сообщения в основной класс (то есть поток) и отображения ответов без задержек. 
+
+    def __init__(self, geocode_function, features, field_index, user_api_key, dlg):
+        QThread.__init__(self)
+        self.geocode_function = geocode_function
+        self.features = features
+        self.field_index = field_index
+        self.user_api_key = user_api_key
+        self.dlg = dlg
+        self.stop_geocoding = False
+
+    def run(self):
+        # Инициализация счетчиков
+        geocoded_features = []
+        geocoded_count = 0
+        not_geocoded_count = 0
+        not_geocoded_addresses = []
+
+        # Получение значений поля для всех объектов в слое и их подсчёт
+        for i, feature in enumerate(self.features):
+            if self.stop_geocoding:
+                break
+
+            value = feature.attributes()[self.field_index]
+            geocoded_feature = self.geocode_function(value, self)
+
+            # Проверка результата геокодирования
+            if geocoded_feature:
+                geocoded_features.append(geocoded_feature)
+                geocoded_count += 1
+            else:
+                not_geocoded_count += 1
+                not_geocoded_addresses.append(value)
+
+            # Обновление прогресс-бара
+            self.progress_updated.emit(i + 1)
+
+            # Отправка сообщения о текущем статусе геокодирования
+            self.message_signal.emit('')
+
+        # Эмитируем сигнал завершения геокодирования
+        self.geocoding_finished.emit(geocoded_features, geocoded_count, not_geocoded_count, not_geocoded_addresses)
 
 class AllGeocodersAtOnce:
     ''' Функционал необходимый для работы любого плагина '''
@@ -66,9 +114,9 @@ class AllGeocodersAtOnce:
 
         self.actions.append(action) # добавляет действие в список self.actions.
 
-        return action # возвращает созданное действие. То есть плагин можно будет использвоать сразу после создания.
+        return action # возвращает созданное действие. То есть плагин можно будет использовать сразу после создания.
 
-    def initGui(self): # произвольное распростанённое название
+    def initGui(self): # произвольное распространённое название
         # Метод initGui предназначен для инициализации графического интерфейса пользователя (GUI) в QGIS. Он создает пункты меню и иконки на панели инструментов, чтобы пользователь мог взаимодействовать с вашим плагином
 
         icon_path = ':/plugins/all_geocoders_at_once/icon.png' # путь к иконке.
@@ -95,13 +143,19 @@ class AllGeocodersAtOnce:
 
     ''' Функционал необходимый для работы данного плагина '''
     def run(self):
-        # Получение имён слоёв, загруженных в QGIS
-        layer_list = [layer.name() for layer in QgsProject.instance().mapLayers().values()]
-
-        # Заполение диалогового окна и присвоение кнопкам необходимых функций
-        if self.first_start == True: # если запущенно впервые, то
-            self.first_start = False # изменить значение на False
-            self.dlg = AllGeocodersAtOnceDialog() # и создать экземпляр диалогового окна.
+        # Проверяем, если окно уже создано
+        if hasattr(self, 'dlg') and self.dlg is not None:
+            # Если окно уже создано, показываем его
+            self.dlg.show()
+            self.dlg.raise_()
+            self.dlg.activateWindow()
+        else:
+            # Инициализация диалогового окна при первом запуске
+            self.first_start = False
+            self.dlg = AllGeocodersAtOnceDialog()
+            
+            # Получение имён слоёв, загруженных в QGIS
+            layer_list = [layer.name() for layer in QgsProject.instance().mapLayers().values()]
             
             self.dlg.comboBox_selectService.addItem("–– Geocoders without API key ––")
             self.dlg.comboBox_selectService.addItems(['Nominatim','Photon','Esri (ArcGis)'])
@@ -123,10 +177,10 @@ class AllGeocodersAtOnce:
             self.update_api_key_visibility() # вызов функции update_api_key_visibility при первой инициализации окна.
             
             self.dlg.pushButton_geocode.clicked.connect(self.geocode_button_clicked) # запуск процесса гекодирования по кнопке "Geocode".
+            self.dlg.pushButton_stop.clicked.connect(self.stop_geocoding_process)  # остановка процесса гекодирования по кнопке "Stop".
             self.dlg.pushButton_clearResults.clicked.connect(lambda: (self.dlg.plainTextEdit_results.clear(), self.dlg.progressBar.setValue(0))) # очистка окна вывода и сброс прогресс-бара по кнопке "Clear Results".
             self.dlg.pushButton_termsOfUse.clicked.connect(self.show_terms_of_use) # открытие диалогового окна со справкой по кнопке "Geocoders Terms of Use".
             self.dlg.pushButton_close.clicked.connect(self.dlg.close) # закрытие диалогового окна по кнопке "Close".
-
 
         # Обновление списка слоев
         self.update_layer_list()
@@ -137,9 +191,9 @@ class AllGeocodersAtOnce:
         result = self.dlg.exec_()
         if result: # если нажата кнопка, которая возвращает положительный результат ("Geocode"), то выполнить код.
             pass
-
+    
+    # Получение имён слоёв, загруженных в QGIS
     def update_layer_list(self):
-        # Получение имён слоёв, загруженных в QGIS
         layer_list = [layer.name() for layer in QgsProject.instance().mapLayers().values()]
         self.dlg.comboBox_selectTable.clear()  # очистка списка слоёв.
         self.dlg.comboBox_selectTable.addItems(layer_list)  # добавление списка слоёв.
@@ -207,7 +261,12 @@ class AllGeocodersAtOnce:
             return result.returncode == 0
         except (FileNotFoundError, subprocess.CalledProcessError):
             return False
-        
+    
+    # Функция остановки процесса геокодирования
+    def stop_geocoding_process(self):
+        if hasattr(self, 'geocode_thread') and self.geocode_thread.isRunning():  # проверка на наличие потока геокодирования и его активность.
+                self.geocode_thread.stop_geocoding = True  # установка флага для остановки процесса в потоке.
+                self.dlg.plainTextEdit_results.appendPlainText('Geocoding process stopped by user.')
 
 
     # Основная функция, выполняемая при нажатии на кнопку "Goecode". Сбор данных слоя, отправка объектов сервису и обработка результатов 
@@ -261,53 +320,63 @@ class AllGeocodersAtOnce:
             self.dlg.plainTextEdit_results.appendPlainText('Geocoding service is not selected')
             return
         
+        # Инициализируем переменную user_api_key
+        user_api_key = None
         # Проверка наличия API ключа перед геокодированием
-        if selected_service_name in  ['Mapbox','TomTom','Yandex','GraphHopper','Geoapify','LocationIQ','NetToolKit','Geocodio','OpenCage','Google','Here','Azure (ex. Bing Maps)','MapQuest','Positionstack','Pelias (hosted by Geocode Earth)','Gisgraphy (hosted by Gisgraphy)','DaData']:
+        if selected_service_name in ['Mapbox','TomTom','Yandex','GraphHopper','Geoapify','LocationIQ','NetToolKit','Geocodio','OpenCage','Google','Here','Azure (ex. Bing Maps)','MapQuest','Positionstack','Pelias (hosted by Geocode Earth)','Gisgraphy (hosted by Gisgraphy)','DaData']:
             user_api_key = self.dlg.lineEdit_enterApiKey.text()
             if not user_api_key:
                 self.dlg.plainTextEdit_results.appendPlainText('API key is missing')
                 return
-
-        # Создание выходного слоя
-        selected_service_name_unified = selected_service_name.split()[0].lower()
-        layer_out_name = f"{selected_service_name_unified}_geocoded"
-        layer_out = QgsVectorLayer("Point?crs=EPSG:4326&field=address_source:string&field=address_geocoded:string&field=lon:double&field=lat:double",
-                                   layer_out_name, "memory")
-        features = []
-
-        # Инициализация счетчиков
-        geocoded_count = 0
-        not_geocoded_count = 0
-        not_geocoded_addresses = []
-
+            
         # Установка максимального и минимального значения для прогресс-бара
-        total_features = selected_layer.featureCount()
+        features = list(selected_layer.getFeatures())
+        total_features = len(features)
         self.dlg.progressBar.setMinimum(0)
         self.dlg.progressBar.setMaximum(total_features)
 
-        # Получение значений поля для всех объектов в слое и их подсчёт
-        for i, feature in enumerate(selected_layer.getFeatures()): # enumerate позволяет передать не только объект, но и его номер
-            value = feature.attributes()[field_index]
-            geocoded_feature = geocode_function(value, self)
-            if geocoded_feature:
-                features.append(geocoded_feature)
-                geocoded_count += 1
-            else:
-                not_geocoded_count += 1
-                not_geocoded_addresses.append(value)  # добавляем адрес в список негеокодированных адресов.
+        # Создание потока для геокодирования и соединение его с функциями обновления прогресс-бара и вывода результатов
+        self.geocode_thread = GeocodeThread(geocode_function, features, field_index, user_api_key, self.dlg)
+        self.geocode_thread.progress_updated.connect(self.update_progress_bar)
+        self.geocode_thread.geocoding_finished.connect(self.geocoding_finished)
+        self.geocode_thread.message_signal.connect(self.append_text_to_results)
 
-            # Обновление прогресс-бара
-            self.dlg.progressBar.setValue(i + 1)
+        # Активация (включение) кнопки "Stop" для возможности прерывания процесса
+        self.dlg.pushButton_stop.setEnabled(True) 
+        # Запуск потока геокодирования 
+        self.geocode_thread.start()  
+
+    # Функция обновления значения прогресс-бара
+    def update_progress_bar(self, value):
+        self.dlg.progressBar.setValue(value)
+
+    # Функция вывода ответа геокодера (не в одну строчку, чтобы избавиться от пустой строки)
+    def append_text_to_results(self, text):
+        current_text = self.dlg.plainTextEdit_results.toPlainText()
+        updated_text = current_text + text
+        self.dlg.plainTextEdit_results.setPlainText(updated_text)
+
+    # Функция вывода сообщений по результатам геокодирования
+    def geocoding_finished(self, geocoded_features, geocoded_count, not_geocoded_count, not_geocoded_addresses):
+        self.dlg.pushButton_stop.setEnabled(False)
+        total_features = self.dlg.progressBar.maximum()
+        self.dlg.progressBar.setValue(total_features) # в любом случае заполнить прогресс-бар.
+        
+        # Создание выходного слоя
+        selected_service_name_unified = self.dlg.comboBox_selectService.currentText().split()[0].lower()
+        layer_out_name = f"{selected_service_name_unified}_geocoded"
+        layer_out = QgsVectorLayer("Point?crs=EPSG:4326&field=address_source:string&field=address_geocoded:string&field=lon:double&field=lat:double",
+                                   layer_out_name, "memory")
 
         # Вывод текста о результатах операции геокодирования
         if geocoded_count > 0:
             # Добавить объекты в слой и на карту
-            layer_out.dataProvider().addFeatures(features)
+            layer_out.dataProvider().addFeatures(geocoded_features)
             layer_out.updateExtents()
             project = QgsProject.instance()
             project.addMapLayer(layer_out)
 
-            # Формирование сообщения о не геокодированных адресах
+            # Формирование сообщения о негеокодированных адресах
             if not_geocoded_addresses:
                 self.dlg.plainTextEdit_results.appendPlainText("Not geocoded addresses: ")
                 for address in not_geocoded_addresses:
@@ -320,6 +389,3 @@ class AllGeocodersAtOnce:
             self.dlg.plainTextEdit_results.appendPlainText('Geocoding is complete!')
         else:
             self.dlg.plainTextEdit_results.appendPlainText('Geocoding was not successful')
-
-        # В любом случае заполнить прогресс-бар
-        self.dlg.progressBar.setValue(total_features)

@@ -67,7 +67,14 @@ def geocode_dadata(value, context):
             error_message = response_json.get("message", "No error message provided")
             context.dlg.plainTextEdit_results.appendPlainText(f'HTTP error code: {status_code}. Error message: {error_message}')
     except subprocess.CalledProcessError as e:
-        context.dlg.plainTextEdit_results.appendPlainText(f"Error: curl command failed with error: {e}")
+        if e.returncode == 60:
+            context.dlg.plainTextEdit_results.appendPlainText(
+                "Error: SSL certificate verification failed.\n"
+                "You can try to add the '--insecure' parameter to the curl_command before the URL.\n"
+                "Open AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/all_geocoders_at_once/geocoders/geocode_dadata.py\n"
+            )
+        else:
+            context.dlg.plainTextEdit_results.appendPlainText(f"Error: curl command failed with error: {e}")
     except json.JSONDecodeError:
         context.dlg.plainTextEdit_results.appendPlainText("Error: Failed to decode JSON response.")
     except Exception as e:

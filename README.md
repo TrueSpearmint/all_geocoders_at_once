@@ -1,6 +1,4 @@
 # QGIS Plugin All Geocoders At Once
-![image](https://github.com/user-attachments/assets/03074c8b-45b5-4531-8549-be63c31c503d)
-<br><br>
 This plugin contains 20 of the most popular geocoding services and is designed to help you choose the best one by comparing temporary results.
 
 It is important to note that the ability to fully utilize geocoding results depends on the rules set by different services. Some of them, especially those that require the use of API keys, may restrict the storage and processing of the obtained information, as well as set conditions for free plans.

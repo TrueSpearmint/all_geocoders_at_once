@@ -33,6 +33,14 @@ class GeocodeThread(QThread):
         self.dlg = dlg
         self.stop_geocoding = False
 
+    # Проверка наличия curl для геокодера DaData
+    def is_curl_installed(self):
+        try:
+            result = subprocess.run(['curl', '--version'], capture_output=True, text=True, check=True)
+            return result.returncode == 0
+        except (FileNotFoundError, subprocess.CalledProcessError):
+            return False
+
     def run(self):
         # Инициализация счетчиков
         geocoded_features = []
@@ -253,14 +261,6 @@ class AllGeocodersAtOnce:
             if status_code == 200:
                 return True
         return False
-
-    # Проверка наличия curl для геокодера DaData
-    def is_curl_installed(self):
-        try:
-            result = subprocess.run(['curl', '--version'], capture_output=True, text=True, check=True)
-            return result.returncode == 0
-        except (FileNotFoundError, subprocess.CalledProcessError):
-            return False
     
     # Функция остановки процесса геокодирования
     def stop_geocoding_process(self):

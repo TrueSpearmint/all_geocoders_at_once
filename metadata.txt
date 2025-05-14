@@ -4,10 +4,11 @@ qgisMinimumVersion=3.0
 qgisMaximumVersion=3.99
 description=Plugin accumulating most popular geocoders
 about=This plugin contains 20 of the most popular geocoding services and is designed to help you choose the best one by comparing temporary results.
-version=1.1
+version=1.1.1
 author=TrueSpearmint
 email=noemail
-changelog=2024/09/08 v1.1.0 The Stop button has been added. To implement this, the main geocoding process has been moved to a separate thread.
+changelog=2025/05/14 v1.1.1 Fixed not working geocoder DaData
+    2024/09/08 v1.1.0 The Stop button has been added. To implement this, the main geocoding process has been moved to a separate thread.
     2024/09/05 v1.0.0 First version.
 experimental=False
 deprecated=False
